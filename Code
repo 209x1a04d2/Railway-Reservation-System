@@ -1,0 +1,260 @@
+import java.util.*;
+class Passenger{
+    String name;
+    static int id = 0;
+    int age;
+    String prefBerth;
+    String allotedBerth;
+    int pId;
+    int seatN;
+    Passenger(String name,int age,String prefBerth){
+        this.name = name;
+        this.age = age;
+        this.prefBerth = prefBerth;
+        this.pId = id++;
+        this.seatN = -1;
+    }
+}
+class TicketBooker{
+    static int availableBerths = 63;
+    static int availableLowerBerths = 1;
+    static int availableMiddleBerths = 1;
+    static int availableUpperBerths = 1;
+    static int availableRAC = 1;
+    static int availableWL = 1;
+    
+    static HashMap<Integer,Passenger> passengers = new HashMap<>();
+    static List<Integer> lowerBerthPos = new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21));
+    static List<Integer> middleBerthPos = new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21));
+    static List<Integer> upperBerthPos = new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21));
+    
+    static Queue<Integer> waitingList = new LinkedList<>();
+    static Queue<Integer> RACList = new LinkedList<>();
+    
+    public static void bookTicket(Passenger p){
+        if(availableWL <= 0){
+            System.out.println("No tickets available");
+            return;
+        }
+        if(p.prefBerth.equals("L") && availableLowerBerths > 0){
+            p.allotedBerth = p.prefBerth;
+            p.seatN = lowerBerthPos.get(0);
+            availableLowerBerths--;
+            lowerBerthPos.remove(0);
+            passengers.put(p.pId,p);
+            System.out.println("Lower Berth Allotted");
+            System.out.println("Booked Successfully-------------");
+            return;
+        }
+        if(p.prefBerth.equals("M") && availableMiddleBerths > 0){
+            p.allotedBerth = p.prefBerth;
+            p.seatN = middleBerthPos.get(0);
+            availableMiddleBerths--;
+            middleBerthPos.remove(0);
+            passengers.put(p.pId,p);
+            System.out.println("Middle Berth Allotted");
+            System.out.println("Booked Successfully-------------");
+            return;
+        }
+        if(p.prefBerth.equals("U") && availableUpperBerths > 0){
+            p.allotedBerth = p.prefBerth;
+            p.seatN = upperBerthPos.get(0);
+            availableUpperBerths--;
+            upperBerthPos.remove(0);
+            passengers.put(p.pId,p);
+            System.out.println("Upper Berth Allotted");
+            System.out.println("Booked Successfully-------------");
+            return;
+        }
+        else if(availableLowerBerths > 0){
+            p.allotedBerth = "L";
+            p.seatN = lowerBerthPos.get(0);
+            availableLowerBerths--;
+            lowerBerthPos.remove(0);
+            passengers.put(p.pId,p);
+            System.out.println("Lower Berth Allotted");
+            System.out.println("Booked Successfully-------------");
+            return;
+        }
+        else if(availableMiddleBerths > 0){
+            p.allotedBerth = "M";
+            p.seatN = middleBerthPos.get(0);
+            availableMiddleBerths--;
+            middleBerthPos.remove(0);
+            passengers.put(p.pId,p);
+            System.out.println("Middle Berth Allotted");
+            System.out.println("Booked Successfully-------------");
+            return;
+        }
+        else if(availableUpperBerths > 0){
+            p.allotedBerth = "U";
+            p.seatN = upperBerthPos.get(0);
+            availableUpperBerths--;
+            upperBerthPos.remove(0);
+            passengers.put(p.pId,p);
+            System.out.println("Upper Berth Allotted");
+            System.out.println("Booked Successfully-------------");
+            return;
+        }
+        else if(availableRAC > 0){
+            p.allotedBerth = "RAC";
+            availableRAC--;
+            RACList.add(p.id);
+            passengers.put(p.pId,p);
+            System.out.println("RAC Ticket alloted");
+            System.out.println("Booked Successfully-------------");
+            return;
+        }
+        else{
+            p.allotedBerth = "WL";
+            availableWL --;
+            waitingList.add(p.id);
+            passengers.put(p.pId,p);
+            System.out.println("WaitingList Ticket alloted");
+            System.out.println("Booked Successfully-------------");
+            return;
+            
+        }
+    }
+    public void moveRACtoBerth(int pId){
+        Passenger p = passengers.get(pId);
+        bookTicket(p);
+        System.out.println("Passenger moved from RAC to Berth");
+        System.out.println("Passenger id : "+p.pId);
+        System.out.println("Name : "+p.name);
+        System.out.println("Age : "+p.age);
+        System.out.println("Alloted Berth : "+p.allotedBerth);          
+        System.out.println("Seat Number : "+p.seatN);
+        System.out.println("--------------");
+        return;
+    }
+    public void moveWLtoRAC(int pId){
+        Passenger p = passengers.get(pId);
+        bookTicket(p);
+        System.out.println("Passenger moved from WL to RAC");
+        System.out.println("Passenger id : "+p.pId);
+        System.out.println("Name : "+p.name);
+        System.out.println("Age : "+p.age);
+        System.out.println("Alloted Berth : "+p.allotedBerth);          
+        System.out.println("Seat Number : "+p.seatN);
+        System.out.println("--------------");
+        return;
+    }
+    public void cancelTicket(int pId){
+        if(!passengers.containsKey(pId)){
+            System.out.println("There is no passenger with the id "+pId);
+            return;
+        }
+        Passenger p = passengers.get(pId);
+        passengers.remove(pId);
+        if(p.allotedBerth.equals("L") || p.allotedBerth.equals("M") || p.allotedBerth.equals("U")){
+            if(p.allotedBerth.equals("L")){
+                availableLowerBerths++;
+                lowerBerthPos.add(p.seatN);
+            }
+            else if(p.allotedBerth.equals("M")){
+                availableMiddleBerths++;
+                middleBerthPos.add(p.seatN);
+            }
+            else if(p.allotedBerth.equals("U")){
+                availableUpperBerths++;
+                upperBerthPos.add(p.seatN);
+            }
+            if(RACList.size() > 0){
+                availableRAC++;
+                moveRACtoBerth(RACList.poll());
+            }
+            if(waitingList.size() > 0){
+                availableWL++;
+                moveWLtoRAC(waitingList.poll());
+            }
+            System.out.println("---------Cancelled Successfully---------");
+            return;
+        }
+        if(RACList.size() > 0){
+            RACList.poll();
+        }
+    }
+    
+    public void printBookedTickets(){
+        if(passengers.size() <=0 ){
+            System.out.println("No passengers booked tickets");
+            return;
+        }
+        System.out.println("---------Passenger Details-------");
+        for(Passenger p:passengers.values()){
+            System.out.println("Passenger id : "+p.pId);
+            System.out.println("Name : "+p.name);
+            System.out.println("Age : "+p.age);
+            System.out.println("Alloted Berth : "+p.allotedBerth);
+            System.out.println("Seat Number : "+p.seatN);
+            System.out.println("--------------");
+        }
+    }
+    
+    public void printAvailableTickets(){
+        System.out.println("-----------------");
+        System.out.println("Available Lower Berths : "+availableLowerBerths);
+        System.out.println("Available Middle Berths : "+availableMiddleBerths);
+        System.out.println("Available Upper Berths : "+availableUpperBerths);
+        System.out.println("Available RAC Tickets : "+availableRAC);
+        System.out.println("Available Waiting List Tickets : "+availableWL);
+        System.out.println("-----------------");
+        return;
+    }
+}
+class HelloWorld {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        while(true){
+            System.out.println("Enter the corresponding number");
+            System.out.println("1. Book Ticket\n2. Cancel Ticket\n3. Print Booked Tickets\n4. Print Available Tickets\n5. Exit");
+            int choice = sc.nextInt();
+            switch(choice){
+                case 1:
+                    {
+                        System.out.println("Enter the following passenger details:");
+                        System.out.print("Enter Name : ");
+                        String name = sc.next();
+                        System.out.print("Enter Age : ");
+                        int age = sc.nextInt();
+                        //System.out.println();
+                        System.out.print("Enter Preferred Berth (L / M / U) : ");
+                        String prefBerth = sc.next();
+                        Passenger p = new Passenger(name,age,prefBerth);
+                        TicketBooker tb = new TicketBooker();
+                        tb.bookTicket(p);
+                        System.out.println("--------------------------");
+                        
+                        
+                    }
+                    break;
+                case 2:
+                    {
+                        System.out.println("Enter Passenger id : ");
+                        int pId = sc.nextInt();
+                        TicketBooker tb = new TicketBooker();
+                        tb.cancelTicket(pId);
+                    }
+                    break;
+                case 3:
+                    {
+                        TicketBooker tb = new TicketBooker();
+                        tb.printBookedTickets();
+                    }
+                    break;
+                case 4:
+                    {
+                        TicketBooker tb = new TicketBooker();
+                        tb.printAvailableTickets();
+                    }
+                    break;
+                case 5:
+                    {
+                        return;
+                    }
+                    
+            }
+        }
+    }
+}
